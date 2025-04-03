@@ -1,0 +1,2 @@
+// ExcelPanel.tsx
+export {};
