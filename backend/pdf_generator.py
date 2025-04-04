@@ -24,40 +24,47 @@ def generate_pdf(template_pdf_path: str, excel_path: str, json_path: str, output
     rows = read_excel_rows(excel_path)
     template = read_template_json(json_path)
 
-    # Открываем PDF-шаблон
-    template_pdf = fitz.open(template_pdf_path)
-
+    base_pdf = fitz.open(template_pdf_path)
     result_pdf = fitz.open()
 
     for row_data in rows:
-        # Клонируем первую страницу шаблона
-        page = template_pdf[0]
-        new_page = result_pdf.new_page(width=page.rect.width, height=page.rect.height)
-        new_page.show_pdf_page(page.rect, template_pdf, 0)
+        working_pdf = fitz.open()
+        working_pdf.insert_pdf(base_pdf)  # копируем исходный шаблон
 
-        # Вставляем данные по шаблону
         for field in template:
             text = str(row_data.get(field["name"], ""))
-            x = field["x"]
-            font_size = field["fontSize"]
-            y = field["y"] + font_size
-            color = field.get("color", "#000000")
-            font = field.get("fontFamily", "helv")  # default font
+            page_index = field.get("page", 1) - 1
+            if page_index < 0 or page_index >= len(working_pdf):
+                continue
 
-            # PyMuPDF использует цвет в виде RGB (0-1)
+            page = working_pdf[page_index]
+            x = field["x"]
+            y = field["y"] + field.get("fontSize", 12)
+            color = field.get("color", "#000000")
+            font_size = field.get("fontSize", 12)
+            frontend_font = field.get("fontFamily", "Arial")
+
+            font = {
+                "Arial": "helv",
+                "Times New Roman": "times",
+                "Courier New": "courier"
+            }.get(frontend_font, "helv")
+
             def hex_to_rgb(hex_color):
                 hex_color = hex_color.lstrip("#")
                 r, g, b = tuple(int(hex_color[i:i + 2], 16) / 255 for i in (0, 2, 4))
                 return (r, g, b)
 
-            new_page.insert_text(
+            page.insert_text(
                 (x, y),
                 text,
                 fontsize=font_size,
-                fontname="helv",  # заменим позже на кастом
+                fontname=font,
                 fill=hex_to_rgb(color)
             )
 
+        result_pdf.insert_pdf(working_pdf)  # только один раз за каждую строку
+
     result_pdf.save(output_path)
     result_pdf.close()
-    template_pdf.close()
+    base_pdf.close()

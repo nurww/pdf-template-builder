@@ -15,4 +15,5 @@ export interface FieldBoxData {
     color: string;
     wrap: boolean;
     align: 'left' | 'center' | 'right';
+    page?: number;
 }

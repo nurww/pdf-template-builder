@@ -13,6 +13,12 @@ const App: React.FC = () => {
   const [pdfSize, setPdfSize] = useState({ width: 800, height: 1000 });
   const [fields, setFields] = useState<FieldBoxData[]>([]);
   const [previewRow, setPreviewRow] = useState<ExcelRow | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [numPages, setNumPages] = useState<number>(1);
+
+  const handlePageChange = (delta: number) => {
+    setCurrentPage((prev) => Math.max(1, Math.min(prev + delta, numPages)));
+  };
 
   const handlePDFUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -60,11 +66,23 @@ const App: React.FC = () => {
                     excelFile={excelFile}
                 />
 
+                {/* Кнопки навигации — ВНЕ PDF/Canvas */}
+                <div style={{ margin: '10px 0' }}>
+                  <button onClick={() => handlePageChange(-1)} disabled={currentPage === 1}>⬅ Назад</button>
+                  <span style={{ margin: '0 10px' }}>Страница {currentPage} из {numPages}</span>
+                  <button onClick={() => handlePageChange(1)} disabled={currentPage === numPages}>Вперед ➡</button>
+                </div>
+
+                {/* Сам PDF и Canvas */}
                 <div style={{ position: 'relative', width: pdfSize.width, height: pdfSize.height }}>
-                  <PDFViewer
-                      file={pdfFile}
-                      onSize={(width, height) => setPdfSize({ width, height })}
-                  />
+                  <div style={{ border: '1px solid red', width: pdfSize.width, height: pdfSize.height }}>
+                    <PDFViewer
+                        file={pdfFile}
+                        onSize={(width, height) => setPdfSize({ width, height })}
+                        page={currentPage}
+                        onLoadTotalPages={(pages) => setNumPages(pages)}
+                    />
+                  </div>
 
                   <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
                     <CanvasEditor
@@ -74,9 +92,11 @@ const App: React.FC = () => {
                         fields={fields}
                         setFields={setFields}
                         previewRow={previewRow ?? undefined}
+                        currentPage={currentPage}
                     />
                   </div>
                 </div>
+
               </>
           ) : (
               <p style={{ padding: '20px' }}>Загрузите PDF</p>

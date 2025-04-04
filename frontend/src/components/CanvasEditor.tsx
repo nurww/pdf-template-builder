@@ -10,6 +10,7 @@ interface CanvasEditorProps {
     fields: FieldBoxData[];
     setFields: Dispatch<SetStateAction<FieldBoxData[]>>;
     previewRow?: ExcelRow;
+    currentPage?: number;
 }
 
 const CanvasEditor: React.FC<CanvasEditorProps> = ({
@@ -18,7 +19,8 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                                                        excelColumns,
                                                        fields,
                                                        setFields,
-                                                       previewRow
+                                                       previewRow,
+                                                       currentPage
                                                    }) => {
     const stageRef = useRef<any>(null);
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -68,6 +70,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
             color: '#000000',
             wrap: true,
             align: 'left',
+            page: currentPage,
         };
 
         setFields([...fields, newField]);
@@ -110,50 +113,53 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
             >
                 <Stage width={width} height={height} ref={stageRef}>
                     <Layer>
-                        {fields.map((field, index) => {
-                            const displayText = previewRow ? previewRow[field.name] ?? '' : field.name;
-                            return (
-                                <Group
-                                    key={index}
-                                    x={field.x}
-                                    y={field.y}
-                                    draggable
-                                    onClick={() => setSelectedIndex(index)}
-                                    onTap={() => setSelectedIndex(index)}
-                                    onDragEnd={(e) => handleDragEnd(index, e)}
-                                >
-                                    {/* Внешняя пунктирная рамка */}
-                                    <Rect
-                                        width={field.width}
-                                        height={field.height}
-                                        stroke="#888"
-                                        strokeWidth={1}
-                                        dash={[4, 2]}
-                                        fill="transparent"
-                                    />
-                                    {/* Внутренний фон */}
-                                    <Rect
-                                        width={field.width - 2}
-                                        height={field.height - 2}
-                                        x={1}
-                                        y={1}
-                                        fill="#fefae0"
-                                        cornerRadius={2}
-                                    />
-                                    <Text
-                                        text={String(displayText)}
-                                        fontSize={field.fontSize}
-                                        fontFamily={field.fontFamily}
-                                        fill={field.color}
-                                        align={field.align}
-                                        verticalAlign="top"
-                                        width={field.width}
-                                        height={field.height}
-                                        wrap={field.wrap ? 'word' : 'none'}
-                                    />
-                                </Group>
-                            );
-                        })}
+                        {fields
+                            .map((field, index) => ({ field, index }))
+                            .filter(({ field }) => !field.page || field.page === currentPage)
+                            .map(({ field, index }) => {
+                                const displayText = previewRow ? previewRow[field.name] ?? '' : field.name;
+                                return (
+                                    <Group
+                                        key={index}
+                                        x={field.x}
+                                        y={field.y}
+                                        draggable
+                                        onClick={() => setSelectedIndex(index)}
+                                        onTap={() => setSelectedIndex(index)}
+                                        onDragEnd={(e) => handleDragEnd(index, e)}
+                                    >
+                                        {/* Внешняя пунктирная рамка */}
+                                        <Rect
+                                            width={field.width}
+                                            height={field.height}
+                                            stroke="#888"
+                                            strokeWidth={1}
+                                            dash={[4, 2]}
+                                            fill="transparent"
+                                        />
+                                        {/* Внутренний фон */}
+                                        <Rect
+                                            width={field.width - 2}
+                                            height={field.height - 2}
+                                            x={1}
+                                            y={1}
+                                            fill="#fefae0"
+                                            cornerRadius={2}
+                                        />
+                                        <Text
+                                            text={String(displayText)}
+                                            fontSize={field.fontSize}
+                                            fontFamily={field.fontFamily}
+                                            fill={field.color}
+                                            align={field.align}
+                                            verticalAlign="top"
+                                            width={field.width}
+                                            height={field.height}
+                                            wrap={field.wrap ? 'word' : 'none'}
+                                        />
+                                    </Group>
+                                );
+                            })}
                     </Layer>
                 </Stage>
             </div>
