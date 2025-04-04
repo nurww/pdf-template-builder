@@ -1,0 +1,17 @@
+# виртуальное окружение Python
+venv/
+__pycache__/
+
+# временные файлы
+tmp/
+*.pyc
+
+# файлы из IDE
+*.idea/
+*.iml
+
+# системные файлы
+.DS_Store
+
+# если используешь Windows
+Thumbs.db

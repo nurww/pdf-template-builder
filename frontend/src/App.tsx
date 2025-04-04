@@ -8,6 +8,7 @@ import TemplateControls from './components/TemplateControls';
 
 const App: React.FC = () => {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [excelFile, setExcelFile] = useState<File | null>(null);
   const [excelColumns, setExcelColumns] = useState<string[]>([]);
   const [pdfSize, setPdfSize] = useState({ width: 800, height: 1000 });
   const [fields, setFields] = useState<FieldBoxData[]>([]);
@@ -21,6 +22,7 @@ const App: React.FC = () => {
   const handleExcelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setExcelFile(file); // 👈 добавили это
 
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -33,7 +35,7 @@ const App: React.FC = () => {
       if (data.length > 0) {
         const columns = Object.keys(data[0]);
         setExcelColumns(columns);
-        setPreviewRow(data[0]); // ✅ теперь тут
+        setPreviewRow(data[0]);
       }
     };
     reader.readAsBinaryString(file);
@@ -64,7 +66,12 @@ const App: React.FC = () => {
                       boxShadow: '0 0 6px rgba(0,0,0,0.1)'
                     }}
                 >
-                  <TemplateControls fields={fields} setFields={setFields} />
+                  <TemplateControls
+                      fields={fields}
+                      setFields={setFields}
+                      pdfFile={pdfFile}
+                      excelFile={excelFile}
+                  />
                 </div>
 
                 {/* PDF */}
