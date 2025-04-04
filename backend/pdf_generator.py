@@ -39,8 +39,8 @@ def generate_pdf(template_pdf_path: str, excel_path: str, json_path: str, output
         for field in template:
             text = str(row_data.get(field["name"], ""))
             x = field["x"]
-            y = field["y"]
-            font_size = field.get("fontSize", 12)
+            font_size = field["fontSize"]
+            y = field["y"] + font_size
             color = field.get("color", "#000000")
             font = field.get("fontFamily", "helv")  # default font
 

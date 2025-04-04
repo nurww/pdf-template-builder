@@ -35,12 +35,12 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
 
     const measureText = (text: string, fontSize: number, fontFamily: string = 'Arial'): { width: number; height: number } => {
         const context = document.createElement('canvas').getContext('2d');
-        if (!context) return { width: 150, height: fontSize + 10 };
+        if (!context) return { width: 150, height: fontSize + 6 };
         context.font = `${fontSize}px ${fontFamily}`;
         const metrics = context.measureText(text);
         return {
             width: metrics.width + 20,
-            height: fontSize + 10,
+            height: fontSize,
         };
     };
 
@@ -122,12 +122,23 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                                     onTap={() => setSelectedIndex(index)}
                                     onDragEnd={(e) => handleDragEnd(index, e)}
                                 >
+                                    {/* Внешняя пунктирная рамка */}
                                     <Rect
                                         width={field.width}
                                         height={field.height}
+                                        stroke="#888"
+                                        strokeWidth={1}
+                                        dash={[4, 2]}
+                                        fill="transparent"
+                                    />
+                                    {/* Внутренний фон */}
+                                    <Rect
+                                        width={field.width - 2}
+                                        height={field.height - 2}
+                                        x={1}
+                                        y={1}
                                         fill="#fefae0"
-                                        stroke="#333"
-                                        cornerRadius={4}
+                                        cornerRadius={2}
                                     />
                                     <Text
                                         text={String(displayText)}
@@ -135,6 +146,7 @@ const CanvasEditor: React.FC<CanvasEditorProps> = ({
                                         fontFamily={field.fontFamily}
                                         fill={field.color}
                                         align={field.align}
+                                        verticalAlign="top"
                                         width={field.width}
                                         height={field.height}
                                         wrap={field.wrap ? 'word' : 'none'}

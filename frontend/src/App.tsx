@@ -51,47 +51,33 @@ const App: React.FC = () => {
         </div>
         <div style={{ flex: 1, padding: '10px' }}>
           {pdfFile ? (
-              <div style={{ position: 'relative', width: pdfSize.width, height: pdfSize.height }}>
-
-                {/* КНОПКИ – поверх Canvas и PDF */}
-                <div
-                    style={{
-                      position: 'absolute',
-                      top: 10,
-                      left: 10,
-                      zIndex: 2,
-                      background: 'white',
-                      padding: 8,
-                      borderRadius: 4,
-                      boxShadow: '0 0 6px rgba(0,0,0,0.1)'
-                    }}
-                >
-                  <TemplateControls
-                      fields={fields}
-                      setFields={setFields}
-                      pdfFile={pdfFile}
-                      excelFile={excelFile}
-                  />
-                </div>
-
-                {/* PDF */}
-                <PDFViewer
-                    file={pdfFile}
-                    onSize={(width, height) => setPdfSize({ width, height })}
+              <>
+                {/* Панель кнопок ВНЕ pdf/canvas */}
+                <TemplateControls
+                    fields={fields}
+                    setFields={setFields}
+                    pdfFile={pdfFile}
+                    excelFile={excelFile}
                 />
 
-                {/* KANVA поверх PDF */}
-                <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
-                  <CanvasEditor
-                      width={pdfSize.width}
-                      height={pdfSize.height}
-                      excelColumns={excelColumns}
-                      fields={fields}
-                      setFields={setFields}
-                      previewRow={previewRow ?? undefined}
+                <div style={{ position: 'relative', width: pdfSize.width, height: pdfSize.height }}>
+                  <PDFViewer
+                      file={pdfFile}
+                      onSize={(width, height) => setPdfSize({ width, height })}
                   />
+
+                  <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+                    <CanvasEditor
+                        width={pdfSize.width}
+                        height={pdfSize.height}
+                        excelColumns={excelColumns}
+                        fields={fields}
+                        setFields={setFields}
+                        previewRow={previewRow ?? undefined}
+                    />
+                  </div>
                 </div>
-              </div>
+              </>
           ) : (
               <p style={{ padding: '20px' }}>Загрузите PDF</p>
           )}
